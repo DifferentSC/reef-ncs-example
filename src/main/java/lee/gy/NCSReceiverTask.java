@@ -1,10 +1,8 @@
 package lee.gy;
 
-import com.google.inject.Inject;
-import org.apache.reef.io.network.Connection;
 import org.apache.reef.io.network.Message;
 import org.apache.reef.io.network.NetworkConnectionService;
-import org.apache.reef.io.network.util.StringIdentifierFactory;
+import org.apache.reef.io.network.impl.config.NetworkConnectionServiceIdFactory;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
 import org.apache.reef.tang.annotations.Name;
@@ -15,10 +13,9 @@ import org.apache.reef.task.Task;
 import org.apache.reef.wake.EventHandler;
 import org.apache.reef.wake.Identifier;
 import org.apache.reef.wake.IdentifierFactory;
-import org.apache.reef.wake.remote.Codec;
 import org.apache.reef.wake.remote.impl.StringCodec;
-import org.apache.reef.wake.remote.transport.LinkListener;
 
+import javax.inject.Inject;
 import java.net.SocketAddress;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -30,34 +27,34 @@ public class NCSReceiverTask implements Task {
   public static class ReceiverName implements Name<String> {
   }
 
-  private static Logger LOG = Logger.getLogger(NCSReceiverTask.class.getName());
+  private static final Logger LOG = Logger.getLogger(NCSReceiverTask.class.getName());
 
   private class StringMessageHandler implements EventHandler<Message<String>> {
     @Override
     public void onNext(final Message<String> message) {
-      Iterator<String> iter = message.getData().iterator();
-      while(!iter.hasNext()) {
+      final Iterator<String> iter = message.getData().iterator();
+      while(iter.hasNext()) {
         System.out.println("Message: " + iter.next());
       }
     }
   }
 
   @Inject
-  NCSReceiverTask(final NetworkConnectionService ncs,
+  public NCSReceiverTask(final NetworkConnectionService ncs,
                   final @Parameter(ReceiverName.class) String receiverName)
       throws InjectionException {
     final Injector injector = Tang.Factory.getTang().newInjector();
-    final IdentifierFactory idFac = injector.getInstance(StringIdentifierFactory.class);
-    Identifier connId = idFac.getNewInstance("receiver_connection");
-    Identifier receiverId = idFac.getNewInstance("receiverName");
+    final IdentifierFactory idFac = injector.getNamedInstance(NetworkConnectionServiceIdFactory.class);
+    final Identifier connId = idFac.getNewInstance("connection");
+    final Identifier receiverId = idFac.getNewInstance(receiverName);
     ncs.registerConnectionFactory(connId, new StringCodec(), new StringMessageHandler(), new DoNothingListener()
     , receiverId);
     LOG.log(Level.FINE, "Receiver Task Started");
   }
 
   @Override
-  public byte[] call(byte[] memento) throws InterruptedException {
-    Thread.sleep(10000);
-    return null;
+  public byte[] call(final byte[] memento) throws InterruptedException {
+    // Spin wait
+    while(true);
   }
 }

@@ -19,14 +19,14 @@ public class NCSExampleClient {
   private static Configuration getRuntimeConfiguration() {
     return LocalRuntimeConfiguration.CONF
         // There are two tasks - sender & receiver
-        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, 2)
+        .set(LocalRuntimeConfiguration.MAX_NUMBER_OF_EVALUATORS, 3)
         .build();
   }
 
   private static Configuration getDriverConfiguration() {
     return DriverConfiguration.CONF
         .set(DriverConfiguration.GLOBAL_LIBRARIES, EnvironmentUtils.getClassLocation(NCSExampleDriver.class))
-        .set(DriverConfiguration.DRIVER_IDENTIFIER, "ncs_example_driver")
+        .set(DriverConfiguration.DRIVER_IDENTIFIER, "NCSExampleDriver")
         .set(DriverConfiguration.ON_DRIVER_STARTED, NCSExampleDriver.StartHandler.class)
         .set(DriverConfiguration.ON_EVALUATOR_ALLOCATED, NCSExampleDriver.EvaluatorAllocatedHandler.class)
         .set(DriverConfiguration.ON_CONTEXT_ACTIVE, NCSExampleDriver.ActiveContextHandler.class)
@@ -44,6 +44,6 @@ public class NCSExampleClient {
     LOG.log(Level.FINE, "REEF job completed: {0}", status);
   }
 
-  NCSExampleClient() {
+  private NCSExampleClient() {
   }
 }
