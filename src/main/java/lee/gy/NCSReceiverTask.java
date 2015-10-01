@@ -7,6 +7,9 @@ import org.apache.reef.io.network.NetworkConnectionService;
 import org.apache.reef.io.network.util.StringIdentifierFactory;
 import org.apache.reef.tang.Injector;
 import org.apache.reef.tang.Tang;
+import org.apache.reef.tang.annotations.Name;
+import org.apache.reef.tang.annotations.NamedParameter;
+import org.apache.reef.tang.annotations.Parameter;
 import org.apache.reef.tang.exceptions.InjectionException;
 import org.apache.reef.task.Task;
 import org.apache.reef.wake.EventHandler;
@@ -23,6 +26,10 @@ import java.util.logging.Logger;
 
 public class NCSReceiverTask implements Task {
 
+  @NamedParameter
+  public static class ReceiverName implements Name<String> {
+  }
+
   private static Logger LOG = Logger.getLogger(NCSReceiverTask.class.getName());
 
   private class StringMessageHandler implements EventHandler<Message<String>> {
@@ -36,11 +43,13 @@ public class NCSReceiverTask implements Task {
   }
 
   @Inject
-  NCSReceiverTask(final NetworkConnectionService ncs, final Identifier receiverId)
+  NCSReceiverTask(final NetworkConnectionService ncs,
+                  final @Parameter(ReceiverName.class) String receiverName)
       throws InjectionException {
     final Injector injector = Tang.Factory.getTang().newInjector();
     final IdentifierFactory idFac = injector.getInstance(StringIdentifierFactory.class);
     Identifier connId = idFac.getNewInstance("receiver_connection");
+    Identifier receiverId = idFac.getNewInstance("receiverName");
     ncs.registerConnectionFactory(connId, new StringCodec(), new StringMessageHandler(), new DoNothingListener()
     , receiverId);
     LOG.log(Level.FINE, "Receiver Task Started");
