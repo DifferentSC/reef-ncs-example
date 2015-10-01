@@ -4,14 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>lee.gy</groupId>
-    <artifactId>reef-ncs-example</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
     <properties>
         <reef.version>0.13.0-incubating-SNAPSHOT</reef.version>
         <hadoop.version>2.6.0</hadoop.version>
+        <project.build.directory>target</project.build.directory>
     </properties>
+
+    <groupId>lee.gy</groupId>
+    <artifactId>reef-ncs-example</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -59,22 +60,35 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.1</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>reef-ncs-example-execution</id>
-                        <phase>test</phase>
+                        <phase>package</phase>
                         <goals>
-                            <goal>java</goal>
+                            <goal>shade</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>lee.gy.NCSExampleClient</mainClass>
+                    <outputFile>
+                        ${project.build.directory}/${project.artifactId}-${project.version}-shaded.jar
+                    </outputFile>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>yarn-default.xml</exclude>
+                                <exclude>yarn-version-info.properties</exclude>
+                                <exclude>core-default.xml</exclude>
+                                <exclude>LICENSE</exclude>
+                                <exclude>META-INF/*</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
 </project>
