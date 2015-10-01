@@ -56,4 +56,25 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <id>reef-ncs-example-execution</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>lee.gy.NCSExampleClient</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
